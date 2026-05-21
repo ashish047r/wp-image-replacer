@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Augmintech — WP Image Replacer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #f4f6f9; color: #1a1a1a; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+  .card { background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,.08); padding: 2.5rem; width: 100%; max-width: 600px; }
+  .logo { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #0F4C81; margin-bottom: .4rem; }
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: .4rem; }
+  .sub { font-size: 14px; color: #6b6b6b; margin-bottom: 2rem; line-height: 1.6; }
+
+  .field { margin-bottom: 1.4rem; }
+  label { display: block; font-size: 13px; font-weight: 600; margin-bottom: .4rem; color: #3d3d3d; }
+  .hint { font-size: 12px; color: #888; margin-bottom: .5rem; }
+
+  input[type="text"] { width: 100%; padding: .55rem .85rem; border: 1px solid #ddd; border-radius: 7px; font-size: 14px; outline: none; transition: border .2s; }
+  input[type="text"]:focus { border-color: #0F4C81; }
+
+  .drop-zone { border: 2px dashed #c8d8ec; border-radius: 8px; padding: 1.4rem; text-align: center; cursor: pointer; transition: background .2s, border-color .2s; position: relative; }
+  .drop-zone:hover, .drop-zone.dragover { background: #e8f2fc; border-color: #0F4C81; }
+  .drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .drop-icon { font-size: 28px; margin-bottom: .4rem; }
+  .drop-label { font-size: 14px; color: #555; }
+  .drop-label span { color: #0F4C81; font-weight: 600; }
+  .file-list { margin-top: .75rem; text-align: left; }
+  .file-item { font-size: 12px; color: #3d3d3d; padding: 4px 8px; background: #f0f4f9; border-radius: 5px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+  .file-item .order { font-weight: 700; color: #0F4C81; min-width: 20px; }
+
+  .notice { background: #fff8e6; border: 1px solid #f5cc80; border-radius: 7px; padding: .85rem 1rem; font-size: 13px; color: #7a4f00; margin-bottom: 1.5rem; line-height: 1.6; }
+  .notice strong { display: block; margin-bottom: .2rem; }
+
+  .errors { background: #fdf0eb; border: 1px solid #f5c4b3; border-radius: 7px; padding: .85rem 1rem; margin-bottom: 1.4rem; }
+  .errors li { font-size: 13px; color: #c0471f; padding: 2px 0; list-style: none; }
+  .errors li::before { content: '✕  '; }
+
+  button[type="submit"] { width: 100%; padding: .85rem; background: #0F4C81; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background .2s; }
+  button[type="submit"]:hover { background: #185FA5; }
+  button[type="submit"]:disabled { background: #a0b8d4; cursor: not-allowed; }
+
+  .spinner { display: none; text-align: center; margin-top: 1rem; font-size: 13px; color: #6b6b6b; }
+
+  /* ── HTML image preview strip ── */
+  #htmlPreviewSection { margin-bottom: 1.4rem; display: none; }
+  #htmlPreviewSection .preview-label { font-size: 13px; font-weight: 600; color: #3d3d3d; margin-bottom: .6rem; }
+  #htmlPreviewSection .preview-count { font-size: 12px; color: #0F4C81; font-weight: 600; background: #e8f2fc; border-radius: 20px; padding: 2px 10px; margin-left: 8px; }
+  .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+  .preview-card { border: 1px solid #e2e2e2; border-radius: 8px; overflow: hidden; background: #f8f8f8; }
+  .preview-card img { width: 100%; height: 90px; object-fit: cover; display: block; }
+  .preview-card .preview-num { font-size: 11px; font-weight: 700; color: #0F4C81; padding: 4px 8px; background: #e8f2fc; text-align: center; }
+  .preview-card .preview-caption { font-size: 10px; color: #6b6b6b; padding: 4px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* uploaded image preview */
+  .img-preview-row { display: flex; align-items: center; gap: 10px; padding: 6px 8px; background: #f0f4f9; border-radius: 6px; margin-bottom: 6px; }
+  .img-preview-row img { width: 48px; height: 36px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; flex-shrink: 0; }
+  .img-preview-row .order { font-weight: 700; color: #0F4C81; font-size: 12px; min-width: 24px; }
+  .img-preview-row .fname { font-size: 12px; color: #3d3d3d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">Augmintech</div>
+  <h1>WordPress Image Replacer</h1>
+  <p class="sub">Upload your HTML file and images in the <strong>exact same order</strong> they appear in the HTML. Each base64 image will be replaced with its WordPress URL.</p>
+
+  {% if errors %}
+  <ul class="errors">
+    {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+
+  <div class="notice">
+    <strong>⚠ Upload order matters</strong>
+    Images are matched to base64 blocks in the HTML by position. Image #1 replaces the 1st base64 image, Image #2 replaces the 2nd, and so on.
+  </div>
+
+  <form method="post" enctype="multipart/form-data" id="mainForm">
+    {% csrf_token %}
+
+    <div class="field">
+      <label>WordPress Upload Path <span style="color:#c0471f">*</span></label>
+      <div class="hint">Year/month folder (e.g. 2026/05)</div>
+      <input type="text" name="year_month" placeholder="2026/05" value="2026/05" required>
+    </div>
+
+    <div class="field">
+      <label>HTML File <span style="color:#c0471f">*</span></label>
+      <div class="drop-zone" id="htmlDrop">
+        <input type="file" name="html_file" accept=".html" required id="htmlInput">
+        <div class="drop-icon">📄</div>
+        <div class="drop-label"><span>Choose HTML file</span> or drag & drop</div>
+      </div>
+      <div class="file-list" id="htmlFileList"></div>
+    </div>
+
+    <!-- Base64 image previews extracted from HTML -->
+    <div id="htmlPreviewSection">
+      <div class="preview-label">
+        Images found in HTML <span class="preview-count" id="previewCount">0</span>
+      </div>
+      <p style="font-size:12px;color:#888;margin-bottom:.75rem;">Upload images below in this exact order ↓</p>
+      <div class="preview-grid" id="previewGrid"></div>
+    </div>
+
+    <div class="field">
+      <label>Images <span style="color:#c0471f">*</span> <span style="font-weight:400;color:#888">(select all at once, in order)</span></label>
+      <div class="drop-zone" id="imgDrop">
+        <input type="file" name="images" accept="image/*" multiple required id="imgInput">
+        <div class="drop-icon">🖼</div>
+        <div class="drop-label"><span>Choose images</span> or drag & drop — hold Cmd/Ctrl to select multiple in order</div>
+      </div>
+      <div class="file-list" id="imgFileList"></div>
+    </div>
+
+    <div class="field" style="display:flex;align-items:center;gap:10px;background:#f0fdf0;border:1px solid #9fd9c5;border-radius:8px;padding:.9rem 1rem;margin-bottom:1.4rem;">
+      <input type="checkbox" name="apply_theme" id="applyTheme" checked style="width:17px;height:17px;accent-color:#18d104;cursor:pointer;flex-shrink:0;">
+      <label for="applyTheme" style="margin:0;cursor:pointer;font-size:13px;color:#0a6b50;">
+        <strong>Apply Augmintech theme</strong> — replaces all CSS, fonts &amp; classes with the official aug-* style system
+      </label>
+    </div>
+
+    <button type="submit" id="submitBtn">Replace &amp; Download HTML</button>
+    <div class="spinner" id="spinner">Processing… please wait</div>
+  </form>
+</div>
+
+<script>
+  // ── HTML file: show filename + extract base64 previews ──
+  document.getElementById('htmlInput').addEventListener('change', function() {
+    const list = document.getElementById('htmlFileList');
+    list.innerHTML = '';
+    const file = this.files[0];
+    if (!file) return;
+
+    const item = document.createElement('div');
+    item.className = 'file-item';
+    item.innerHTML = `<span class="order">✓</span> ${file.name}`;
+    list.appendChild(item);
+
+    // Read file and extract base64 images
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const html = e.target.result;
+      const pattern = /src="data:image\/(png|jpeg|jpg|gif|webp);base64,([^"]+)"/g;
+      const grid = document.getElementById('previewGrid');
+      const section = document.getElementById('htmlPreviewSection');
+      const countBadge = document.getElementById('previewCount');
+      grid.innerHTML = '';
+
+      let match;
+      let count = 0;
+      while ((match = pattern.exec(html)) !== null) {
+        count++;
+        const mimeType = match[1] === 'jpg' ? 'jpeg' : match[1];
+        const dataUrl = `data:image/${mimeType};base64,${match[2]}`;
+
+        const card = document.createElement('div');
+        card.className = 'preview-card';
+        card.innerHTML = `
+          <div class="preview-num">#${count}</div>
+          <img src="${dataUrl}" alt="Image ${count}">
+          <div class="preview-caption">Image ${count}</div>
+        `;
+        grid.appendChild(card);
+      }
+
+      countBadge.textContent = count;
+      section.style.display = count > 0 ? 'block' : 'none';
+    };
+    reader.readAsText(file);
+  });
+
+  // ── Uploaded images: show thumbnail + filename in order ──
+  document.getElementById('imgInput').addEventListener('change', function() {
+    const list = document.getElementById('imgFileList');
+    list.innerHTML = '';
+    Array.from(this.files).forEach((file, i) => {
+      const row = document.createElement('div');
+      row.className = 'img-preview-row';
+
+      const img = document.createElement('img');
+      const reader = new FileReader();
+      reader.onload = e => img.src = e.target.result;
+      reader.readAsDataURL(file);
+
+      row.innerHTML = `<span class="order">#${i + 1}</span>`;
+      row.appendChild(img);
+      const name = document.createElement('span');
+      name.className = 'fname';
+      name.textContent = file.name;
+      row.appendChild(name);
+      list.appendChild(row);
+    });
+  });
+
+  // ── Spinner on submit ──
+  document.getElementById('mainForm').addEventListener('submit', function() {
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('submitBtn').textContent = 'Processing…';
+    document.getElementById('spinner').style.display = 'block';
+  });
+
+  // ── Drag-over highlight ──
+  ['htmlDrop', 'imgDrop'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('dragover'); });
+    el.addEventListener('dragleave', () => el.classList.remove('dragover'));
+    el.addEventListener('drop', () => el.classList.remove('dragover'));
+  });
+</script>
+</body>
+</html>
