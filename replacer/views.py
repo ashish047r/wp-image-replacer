@@ -6,6 +6,17 @@ from bs4 import BeautifulSoup, Tag
 WP_BASE = "https://augmintech.com/wp-content/uploads"
 
 AUGMINTECH_CSS = """
+:root{
+  --brand:#0F4C81;--brand-lite:#e8f2fc;--brand-border:#c8d8ec;
+  --green:#18d104;--green-lite:#f0fdf0;--green-border:#9fd9c5;
+  --coral:#c0471f;--coral-lite:#fdf0eb;--coral-border:#f5c4b3;
+  --warn:#e67e22;--warn-lite:#fef9ef;--warn-border:#f5cc80;
+  --teal:#0a6b8a;--teal-lite:#e8f8fc;--teal-border:#b3e0ec;
+  --ink:#1a1a1a;--ink-mid:#555;--muted:#888;
+  --surface:#f4f6f9;--white:#fff;--border:#e5e5e5;
+  --radius:8px;
+  --mono:'Courier New',monospace;--display:system-ui,sans-serif;
+}
 .aug-wrap *{box-sizing:border-box;margin:0;padding:0;}
 .aug-wrap{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;font-size:16px;line-height:1.65em;color:#333;max-width:1200px;margin:0 auto;padding:20px 20px 60px;}
 .aug-grid{display:block;max-width:820px;}
@@ -111,12 +122,10 @@ def _has(tag, *names):
 def apply_augmintech_theme(html):
     soup = BeautifulSoup(html, 'html.parser')
 
-    # ── 1. Remove all <style>, <script>, <link rel=stylesheet> ──
+    # ── 1. Remove all <style> and <link rel=stylesheet>; keep <script> for interactivity ──
     for tag in soup.find_all('style'):
         tag.decompose()
     for tag in soup.find_all('link', rel=lambda r: r and 'stylesheet' in r):
-        tag.decompose()
-    for tag in soup.find_all('script'):
         tag.decompose()
 
     # ── 2. Remove decorative-only elements ──
