@@ -379,8 +379,6 @@ def index(request):
     errors = []
     if not html_file:
         errors.append('Please upload an HTML file.')
-    if not images:
-        errors.append('Please upload at least one image.')
     if not year_month:
         errors.append('Please enter a year/month (e.g. 2026/05).')
 
@@ -393,7 +391,9 @@ def index(request):
     pattern = re.compile(r'src="data:image/(?:png|jpeg|jpg|gif|webp);base64,[^"]+"')
     matches = list(pattern.finditer(html_content))
 
-    if len(matches) != len(images):
+    if len(matches) == 0 and len(images) == 0:
+        pass  # no base64 images in HTML and none uploaded — proceed (theme-only run)
+    elif len(matches) != len(images):
         return render(request, 'index.html', {
             'errors': [
                 f'HTML has {len(matches)} base64 image(s) but you uploaded {len(images)} image(s). '

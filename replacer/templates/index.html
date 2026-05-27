@@ -107,7 +107,7 @@
     <div class="field">
       <label>Images <span style="color:#c0471f">*</span> <span style="font-weight:400;color:#888">(select all at once, in order)</span></label>
       <div class="drop-zone" id="imgDrop">
-        <input type="file" name="images" accept="image/*" multiple required id="imgInput">
+        <input type="file" name="images" accept="image/*" multiple id="imgInput">
         <div class="drop-icon">🖼</div>
         <div class="drop-label"><span>Choose images</span> or drag & drop — hold Cmd/Ctrl to select multiple in order</div>
       </div>
@@ -168,6 +168,8 @@
 
       countBadge.textContent = count;
       section.style.display = count > 0 ? 'block' : 'none';
+      // Images are only required when the HTML actually has base64 images
+      document.getElementById('imgInput').required = count > 0;
     };
     reader.readAsText(file);
   });
