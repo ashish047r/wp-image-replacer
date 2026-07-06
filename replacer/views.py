@@ -258,7 +258,14 @@ def apply_augmintech_theme(html):
             label['class'] = []
 
     # ── 14. TOC — rebuild full aug-toc structure ──
-    for toc in soup.find_all(lambda t: 'toc' in (t.get('class') or [])):
+    # A source draft occasionally has a TOC block duplicated by accident during
+    # editing. If we styled every match, each one would become its own aug-toc
+    # box stacked in the output. Keep only the first; drop any extras entirely.
+    toc_matches = soup.find_all(lambda t: 'toc' in (t.get('class') or []))
+    for extra_toc in toc_matches[1:]:
+        extra_toc.decompose()
+
+    for toc in toc_matches[:1]:
         toc['class'] = ['aug-toc']
 
         # Find or create the head element
