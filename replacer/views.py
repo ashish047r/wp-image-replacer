@@ -107,7 +107,75 @@ AUGMINTECH_CSS = """
 .aug-faq-a{font-size:15px;color:#555;line-height:1.65em;}
 .aug-wa-link{color:#18d104;font-weight:700;text-decoration:none;}
 .aug-wa-link:hover{text-decoration:underline;}
+.aug-teal{border-left:4px solid #00747d;background:#e0f5f7;border-radius:0 8px 8px 0;padding:16px 20px;margin:16px 0 24px;}
+.aug-teal p{margin:0;font-size:15px;color:#003d42;line-height:1.7em;}
+.steps{list-style:none;counter-reset:stp;padding:0;margin:16px 0 24px;}
+.steps > li{counter-increment:stp;position:relative;padding:0 0 20px 40px;border-left:2px solid #e5e5e5;margin-left:15px;}
+.steps > li:last-child{border-left-color:transparent;padding-bottom:0;}
+.steps > li::before{content:counter(stp);position:absolute;left:-16px;top:-2px;width:30px;height:30px;border-radius:50%;background:#18d104;color:#000;font-weight:800;font-size:13.5px;display:flex;align-items:center;justify-content:center;}
+.step-h{font-size:16.5px;font-weight:700;margin-bottom:8px;padding-top:4px;color:#1a1a1a;}
+.eq{background:#f9f9f9;border:1px solid #e5e5e5;border-radius:8px;padding:18px 22px;margin:24px 0;}
+.eq-title{font-size:11px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;color:#18d104;margin-bottom:12px;}
+.eq-res{font-family:Georgia,'Times New Roman',serif;font-size:19px;font-weight:700;color:#0a6e4f;background:#f0fdf0;border:1px solid #9fd9c5;border-radius:6px;padding:6px 14px;display:inline-block;margin-top:8px;}
+.eq-res.alt{color:#7a4200;background:#fef9ef;border-color:#f5cc80;}
+.eq-note{font-size:14px;color:#666;line-height:1.7em;margin:12px 0 0;}
+.eq-note strong{color:#1a1a1a;}
+.eq-where{list-style:none;padding:0;margin:14px 0 0;border-top:1px solid #e5e5e5;padding-top:11px;}
+.eq-where li{font-size:14px;color:#555;padding:3px 0;line-height:1.6;}
+.eq-where .sym{font-family:Georgia,serif;font-style:italic;font-size:16px;color:#18d104;font-weight:700;display:inline-block;min-width:34px;}
+.eq-sep{border-top:1px dashed #e5e5e5;margin:14px 0 12px;}
+.math{font-family:'Cambria Math','Latin Modern Math',Georgia,'Times New Roman',serif;font-size:21px;line-height:1.35;color:#333;display:flex;align-items:center;flex-wrap:wrap;margin:12px 0;}
+.math.ctr{justify-content:center;}
+.math .var{font-style:italic;}
+.math sub{font-size:.64em;vertical-align:-.3em;font-style:normal;}
+.math sup{font-size:.64em;vertical-align:.55em;font-style:normal;}
+.math .eqs{padding:0 .5em;}
+.math .opr{padding:0 .32em;}
+.math .unit{font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:.6em;color:#888;font-style:normal;padding-left:.6em;letter-spacing:.2px;}
+.math .res{color:#18d104;font-weight:700;}
+.math .paren{font-size:1.25em;font-weight:300;padding:0 .05em;}
+.frac{display:inline-flex;flex-direction:column;align-items:center;text-align:center;margin:0 .32em;vertical-align:middle;}
+.frac > .num{padding:0 .55em .16em;border-bottom:1.6px solid currentColor;white-space:nowrap;}
+.frac > .den{padding:.16em .55em 0;white-space:nowrap;}
+.mathblock{background:#fff;border:1px solid #e5e5e5;border-radius:6px;padding:14px 18px;margin:14px 0;overflow-x:auto;}
+.mathblock .math{margin:6px 0;}
+.math-lbl{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:#888;margin-bottom:6px;}
+.mi{font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:1.04em;}
+.mi sub{font-style:normal;font-size:.68em;}
 """
+
+# Standard SVG presentation attributes whose names are camelCase per spec.
+# BeautifulSoup's html.parser lowercases every attribute name (correct for
+# plain HTML, which is case-insensitive) but that silently breaks SVG, whose
+# attribute names ARE case-sensitive -- viewbox="..." and markerwidth="8"
+# are simply ignored by browsers. Restore the original casing after parsing.
+SVG_CAMELCASE_ATTRS = [
+    'allowReorder', 'attributeName', 'attributeType', 'autoReverse',
+    'baseFrequency', 'baseProfile', 'calcMode', 'clipPathUnits',
+    'contentScriptType', 'contentStyleType', 'diffuseConstant', 'edgeMode',
+    'externalResourcesRequired', 'filterRes', 'filterUnits', 'glyphRef',
+    'gradientTransform', 'gradientUnits', 'kernelMatrix', 'kernelUnitLength',
+    'keyPoints', 'keySplines', 'keyTimes', 'lengthAdjust',
+    'limitingConeAngle', 'markerHeight', 'markerUnits', 'markerWidth',
+    'maskContentUnits', 'maskUnits', 'numOctaves', 'pathLength',
+    'patternContentUnits', 'patternTransform', 'patternUnits',
+    'pointsAtX', 'pointsAtY', 'pointsAtZ', 'preserveAlpha',
+    'preserveAspectRatio', 'primitiveUnits', 'refX', 'refY',
+    'repeatCount', 'repeatDur', 'requiredExtensions', 'requiredFeatures',
+    'specularConstant', 'specularExponent', 'spreadMethod', 'startOffset',
+    'stdDeviation', 'stitchTiles', 'surfaceScale', 'systemLanguage',
+    'tableValues', 'targetX', 'targetY', 'textLength', 'viewBox',
+    'viewTarget', 'xChannelSelector', 'yChannelSelector', 'zoomAndPan',
+]
+_SVG_ATTR_FIX_MAP = {a.lower(): a for a in SVG_CAMELCASE_ATTRS}
+_SVG_ATTR_FIX_RE = re.compile(
+    r'\b(' + '|'.join(re.escape(a) for a in _SVG_ATTR_FIX_MAP) + r')=',
+    re.IGNORECASE,
+)
+
+
+def _restore_svg_attribute_case(html):
+    return _SVG_ATTR_FIX_RE.sub(lambda m: _SVG_ATTR_FIX_MAP[m.group(1).lower()] + '=', html)
 
 
 def _classes(tag):
@@ -163,9 +231,17 @@ def apply_augmintech_theme(html):
         tag['class'] = ['aug-p']
 
     # ── 7. Lists ──
+    # 'steps' (numbered worked-solution lists) and 'eq-where' (equation
+    # symbol legends) carry their own dedicated CSS above and must not be
+    # collapsed into the generic bullet/number styles.
+    PRESERVE_LIST_CLASSES = ('steps', 'eq-where')
     for tag in soup.find_all('ul'):
+        if _has(tag, *PRESERVE_LIST_CLASSES):
+            continue
         tag['class'] = ['aug-ul']
     for tag in soup.find_all('ol'):
+        if _has(tag, *PRESERVE_LIST_CLASSES):
+            continue
         tag['class'] = ['aug-ol']
 
     # ── 8. HR ──
@@ -249,6 +325,19 @@ def apply_augmintech_theme(html):
         c in (t.get('class') or []) for c in ['box-warn', 'box-coral', 'box-purple']
     )):
         tag['class'] = ['aug-warn']
+        for p in tag.find_all('p'):
+            p['class'] = []
+        for label in tag.find_all(lambda t: any(
+            c in (t.get('class') or []) for c in ['box-label', 'box-title']
+        )):
+            label.name = 'h4'
+            label['class'] = []
+
+    # box-teal → aug-teal (left teal border). Previously unhandled entirely,
+    # so its class fell through to the OLD_PREFIXES cleanup below and got
+    # deleted outright, leaving a bare unstyled <div>.
+    for tag in soup.find_all(lambda t: 'box-teal' in (t.get('class') or [])):
+        tag['class'] = ['aug-teal']
         for p in tag.find_all('p'):
             p['class'] = []
         for label in tag.find_all(lambda t: any(
@@ -380,7 +469,8 @@ def apply_augmintech_theme(html):
     style_tag.string = AUGMINTECH_CSS
     head.append(style_tag)
 
-    return str(soup)
+    # ── 21. Restore SVG attribute casing lowercased by html.parser ──
+    return _restore_svg_attribute_case(str(soup))
 
 
 def index(request):
