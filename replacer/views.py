@@ -142,6 +142,25 @@ AUGMINTECH_CSS = """
 .math-lbl{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:#888;margin-bottom:6px;}
 .mi{font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:1.04em;}
 .mi sub{font-style:normal;font-size:.68em;}
+.panel{background:linear-gradient(180deg,#f2fdf0 0%,#ffffff 60%);border:1px solid #cdeecb;border-top:4px solid #18d104;border-radius:12px;padding:26px 28px;margin:28px 0;box-shadow:0 4px 18px rgba(24,209,4,.12);}
+.calc-head{display:inline-block;font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:#fff;background:#18d104;padding:5px 14px;border-radius:20px;margin-bottom:18px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.calc-label{display:block;font-size:12px;font-weight:700;color:#444;margin-bottom:6px;letter-spacing:.2px;}
+.calc-input{width:100%;padding:12px 14px;border:1px solid transparent;border-radius:8px;background:#eef1ee;font-size:14px;color:#1a1a1a;box-sizing:border-box;font-family:inherit;transition:border-color .15s,background .15s;}
+.calc-input:focus{outline:none;border-color:#18d104;background:#fff;}
+select.calc-input{cursor:pointer;}
+.calc-btn{display:inline-block;background:#18d104;color:#fff;border:none;border-radius:8px;padding:13px 30px;font-size:14px;font-weight:700;cursor:pointer;margin-top:20px;letter-spacing:.3px;font-family:inherit;box-shadow:0 3px 10px rgba(24,209,4,.35);}
+.calc-btn:hover{background:#12b803;}
+.calc-result{background:#fff;border:1px solid #cdeecb;border-left:4px solid #18d104;border-radius:8px;padding:14px 18px;margin-top:18px;font-size:14px;color:#333;line-height:1.65em;}
+.rescard{background:#fff;border:1px solid #e5e5e5;border-radius:8px;padding:14px 16px;}
+.rescard .rl{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#888;margin-bottom:5px;}
+.rescard .rv{display:block;font-size:21px;font-weight:800;color:#1a1a1a;line-height:1.2;}
+.rescard .rs{display:block;font-size:11px;color:#888;margin-top:4px;}
+@media(max-width:640px){
+  .grid3,.grid4{grid-template-columns:1fr 1fr;}
+}
 """
 
 # Standard SVG presentation attributes whose names are camelCase per spec.
